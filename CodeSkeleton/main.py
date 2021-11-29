@@ -3,6 +3,9 @@ import sys
 import pyspark
 from pyspark import SparkConf
 from pyspark.sql import SparkSession
+import data_management
+import data_analysis
+import runtime_classifier
 
 HADOOP_HOME = "./resources/hadoop_home"
 JDBC_JAR = "./resources/postgresql-42.2.8.jar"
@@ -27,3 +30,4 @@ if(__name__== "__main__"):
     sc = pyspark.SparkContext.getOrCreate()
 
     #Create and point to your pipelines here
+    data_management.process(sc)
