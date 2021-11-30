@@ -1,4 +1,4 @@
 import pyspark
 
-def process(sc):
+def evaluation(sc):
     pass
