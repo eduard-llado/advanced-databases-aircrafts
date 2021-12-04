@@ -12,9 +12,8 @@ password = "DB100200"
 
 def management(sc):
     sess = SparkSession(sc)
-
-    # - Read the sensor measurements (extracted from the CSV files) related to a certain aircraft A and average it per day.
-
+    # - Read the sensor measurements (extracted from the CSV files) related to a certain aircraft and average it per day.
+   
     sensors = (sc.wholeTextFiles("./resources/trainingData/*.csv")
     .map(lambda t: ((t[0].split("/")[-1][-10:-4], t[1])))
     # ('XY-SHM', 'date;series;value\n2014-10-31 13:57:59.396;eventData;65.53802006168051\n2014-10-31 14:02:59.396;eventData;65.96371019435036\n2014-10-31 14:07:59.396;eventData;67.25221768056858\n2014-10-31 14:12:59.396;eventData;67.12692026132314\n2014-10-31 14:17:59.396;eventData;61.28435253159288\n2014-10-31 14:22:59.396;eventData;62.899959942434954\n')
