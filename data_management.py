@@ -85,4 +85,4 @@ def management(sc):
                                                           FC=t[1][1],
                                                           DM=t[1][2],
                                                           Label=t[1][4],
-                                                          SensorAVG=t[1][3]))).write.csv('matrix')
+                                                          SensorAVG=t[1][3]))).write.mode("overwrite").csv("matrix")
