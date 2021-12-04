@@ -6,6 +6,8 @@ from pyspark.sql import SparkSession
 import operator
 from pyspark.sql.functions import avg
 
+from datetime import timedelta
+
 
 username = "eduard.llado"
 password = "DB100200"
@@ -50,7 +52,7 @@ def management(sc):
     
     # kpis: ((aircraft-id, date), (FH, FC, DM)
 
-    enrichedSensors = sensors.join(kpis).map(lambda t: (t[0], (t[1][1][0], t[1][1][1], t[1][1][2], t[1][0])))
+    enrichedSensors = sensors.join(kpis).mapValues(lambda t: (t[1][0], t[1][1], t[1][2], t[0]))
 
     # enrichedSensors: ((aircraft-id, date), (FH, FC, DM, AVG(sensor)))
 
@@ -66,8 +68,21 @@ def management(sc):
         .load())
 
     labels = (AMOS
-              .select("aircraftregistration")
-              .rdd)
+              .select("aircraftregistration", "starttime", "kind")
+              .rdd
+              .filter(lambda t: t[2] in ("Delay", "Safety", "AircraftOnGround"))
+              .flatMapValues(lambda t: (str((t.date() - timedelta(i))) for i in range(7)))
+              .map(lambda t: ((t[0], t[1]), 1))
+              .distinct())
 
+    labeledSensors = enrichedSensors.leftOuterJoin(labels).mapValues(lambda t: t[0] + ({1: "Maintenance", None: "NonMaintenance"}[t[1]],))
+    
+    ### Generate a matrix with the gathered data and store it ###
 
-    # - Generate a matrix with the gathered data and store it.
+    sess.createDataFrame(labeledSensors.map(lambda t: Row(Aircraft=t[0][0],
+                                                          Date=t[0][1],
+                                                          FH=t[1][0],
+                                                          FC=t[1][1],
+                                                          DM=t[1][2],
+                                                          Label=t[1][4],
+                                                          SensorAVG=t[1][3]))).write.csv('matrix')
