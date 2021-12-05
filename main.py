@@ -31,3 +31,5 @@ if(__name__== "__main__"):
 
     #Create and point to your pipelines here
     data_management.management(sc)
+    data_analysis.analysis(sc)
+
