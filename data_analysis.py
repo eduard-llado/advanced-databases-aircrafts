@@ -4,17 +4,18 @@ from pyspark.ml.feature import StringIndexer, VectorAssembler
 from pyspark.ml import Pipeline
 from pyspark.ml.classification import DecisionTreeClassifier
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator
-from pyspark.sql.types import DoubleType, IntegerType
-from pyspark.sql.functions import col
+
 
 def analysis(sc):
+    """
+    This pipeline trains a decision tree classifier for predicting if an aircraft is going to interrupt
+    its operation unexpectedly in the next seven days.
+    """
+
     sess = SparkSession(sc)
 
-    data = (sess.read.option("header", True).csv("./matrix")
-            .withColumn("SensorAVG", col("SensorAVG").cast(DoubleType()))
-            .withColumn("FH", col("FH").cast(DoubleType()))
-            .withColumn("FC", col("FC").cast(IntegerType()))
-            .withColumn("DM", col("DM").cast(IntegerType())))
+    data = sess.read.option("header", True).csv("./matrix")
+    data.show()
 
     labelIndexer = StringIndexer(inputCol="Label", outputCol="indexedLabel").fit(data)
     vectorAssembler = VectorAssembler(inputCols=["SensorAVG", "FH", "FC", "DM"], outputCol="features")
@@ -26,9 +27,10 @@ def analysis(sc):
     model = pipeline.fit(trainingData)
     predictions = model.transform(testData)
     predictions.select("prediction", "indexedLabel", "features").show(5)
-    
+
     evaluator = MulticlassClassificationEvaluator(
         labelCol="indexedLabel", predictionCol="prediction", metricName="accuracy")
     accuracy = evaluator.evaluate(predictions)
     print(accuracy)
 
+    # data type string not supported FH, FC...
