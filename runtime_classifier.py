@@ -3,7 +3,7 @@ import pyspark
 
 def evaluation(sc):
     """
-    This pipeline predicts if this aircraft is going to go for unscheduled maintenance
+    This pipeline predicts if an aircraft is going to go for unscheduled maintenance
     given a new record (<aircraft, date, FH, FC, DM, AVG(sensor)>).
     """
 
