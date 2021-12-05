@@ -30,5 +30,5 @@ if __name__ == "__main__":
     sc = pyspark.SparkContext.getOrCreate()
 
     # Create and point to your pipelines here
-    # data_management.management(sc)
+    data_management.management(sc)
     data_analysis.analysis(sc)

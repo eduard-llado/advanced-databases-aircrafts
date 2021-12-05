@@ -1,6 +1,6 @@
-import pyspark
+import shutil
 from pyspark.sql import SparkSession
-from pyspark.ml.feature import StringIndexer, VectorAssembler
+from pyspark.ml.feature import StringIndexer, VectorIndexer
 from pyspark.ml import Pipeline
 from pyspark.ml.classification import DecisionTreeClassifier
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator
@@ -14,23 +14,61 @@ def analysis(sc):
 
     sess = SparkSession(sc)
 
-    data = sess.read.option("header", True).csv("./matrix")
-    data.show()
+    """Create two datasets (training and validation) and format them."""
 
-    labelIndexer = StringIndexer(inputCol="Label", outputCol="indexedLabel").fit(data)
-    vectorAssembler = VectorAssembler(inputCols=["SensorAVG", "FH", "FC", "DM"], outputCol="features")
-    dt = DecisionTreeClassifier(labelCol="indexedLabel", featuresCol="features")
-    pipeline = Pipeline(stages=[labelIndexer, vectorAssembler, dt])
+    # Load the data stored in LIBSVM format as a DataFrame.
+    data = sess.read.format("libsvm").option("numFeatures", "5").load("./matrix")
+    data.show(5)
 
+    # Index labels, adding metadata to the label column.
+    # Fit on whole dataset to include all labels in index.
+    labelIndexer = StringIndexer(inputCol="label", outputCol="indexedLabel").fit(data)
+
+    # Automatically identify categorical features, and index them.
+    # We specify maxCategories so features with > 4 distinct values are treated as continuous.
+    featureIndexer = VectorIndexer().setInputCol("features")\
+        .setOutputCol("indexedFeatures")\
+        .setMaxCategories(4)\
+        .fit(data)
+
+    # Split the data into training and test sets (30% held out for testing)
     (trainingData, testData) = data.randomSplit([0.7, 0.3])
 
+    """Create and store the validated model. Included evaluation metrics: accuracy and recall."""
+
+    # Train a DecisionTree model.
+    dt = DecisionTreeClassifier(labelCol="indexedLabel", featuresCol="indexedFeatures")
+
+    # Chain indexers and tree in a Pipeline
+    pipeline = Pipeline(stages=[labelIndexer, featureIndexer, dt])
+
+    # Train model.  This also runs the indexers.
     model = pipeline.fit(trainingData)
+
+    # Make predictions.
     predictions = model.transform(testData)
+
+    # Select example rows to display.
     predictions.select("prediction", "indexedLabel", "features").show(5)
 
-    evaluator = MulticlassClassificationEvaluator(
-        labelCol="indexedLabel", predictionCol="prediction", metricName="accuracy")
-    accuracy = evaluator.evaluate(predictions)
-    print(accuracy)
+    # Select (prediction, true label) and compute accuracy and recall.
+    accuracy_evaluator = MulticlassClassificationEvaluator(labelCol="indexedLabel", predictionCol="prediction",
+                                                           metricName="accuracy")
+    accuracy = accuracy_evaluator.evaluate(predictions)
+    print("Accuracy = %g " % accuracy)
+    recall_evaluator = MulticlassClassificationEvaluator(labelCol="indexedLabel", predictionCol="prediction",
+                                                         metricName="weightedRecall")
+    recall = recall_evaluator.evaluate(predictions)
+    print("Recall = %g " % recall) # ??? dona el mateix :/
 
-    # data type string not supported FH, FC...
+    # Model summary
+    treeModel = model.stages[2]
+    print(treeModel)
+
+    dir_path = "./model"
+    try:
+        shutil.rmtree(dir_path)
+    except OSError as e:
+        print("Error: %s : %s" % (dir_path, e.strerror))
+
+    treeModel.save("./model")
