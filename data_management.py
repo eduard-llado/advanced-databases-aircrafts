@@ -79,10 +79,8 @@ def management(sc):
     
     ### Generate a matrix with the gathered data and store it ###
 
-    sess.createDataFrame(labeledSensors.map(lambda t: Row(Aircraft=t[0][0],
-                                                          Date=t[0][1],
-                                                          FH=t[1][0],
+    sess.createDataFrame(labeledSensors.map(lambda t: Row(FH=t[1][0],
                                                           FC=t[1][1],
                                                           DM=t[1][2],
                                                           Label=t[1][4],
-                                                          SensorAVG=t[1][3]))).write.mode("overwrite").csv("matrix")
+                                                          SensorAVG=t[1][3]))).write.mode("overwrite").option("header", True).csv("matrix")
