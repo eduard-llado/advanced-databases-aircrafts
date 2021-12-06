@@ -1,8 +1,9 @@
 import shutil
-from pyspark.sql import SparkSession
 from datetime import timedelta
-from pyspark.mllib.util import MLUtils
+
 from pyspark.mllib.regression import LabeledPoint
+from pyspark.mllib.util import MLUtils
+from pyspark.sql import SparkSession
 
 username = "eduard.llado"
 password = "DB100200"
@@ -80,8 +81,8 @@ def management(sc):
     # (4) Set aircraft and date as key
     # labels output: ((aircraft, date), 1) for all unscheduled events
 
-    labeledSensors = enrichedSensors\
-        .leftOuterJoin(labels)\
+    labeledSensors = enrichedSensors \
+        .leftOuterJoin(labels) \
         .mapValues(lambda t: t[0] + ({1: 1, None: 0}[t[1]],))
 
     # labeledSensors output: ((aircraft, date), (FH, FC, DM, AVG(sensor), label))
@@ -90,9 +91,9 @@ def management(sc):
     """Generate a matrix with the gathered data and store it."""
 
     matrix = (labeledSensors
-              .map(lambda t: LabeledPoint(t[1][4], [t[1][0], t[1][1], t[1][2], t[1][3]])))
+              .map(lambda t: LabeledPoint(t[1][4], [t[1][3], t[1][0], t[1][1], t[1][2]])))
 
-    # matrix row: (label, [FH, FC, DM, AVG(sensor)])
+    # matrix row: (label, [AVG(sensor), FH, FC, DM])
 
     dir_path = "./matrix"
     try:
@@ -100,10 +101,4 @@ def management(sc):
     except OSError as e:
         print("Error: %s : %s" % (dir_path, e.strerror))
 
-    MLUtils.saveAsLibSVMFile(matrix, "./matrix")
-
-    # sess.createDataFrame(
-    #     labeledSensors.map(lambda t: Row(FH=t[1][0], FC=t[1][1], DM=t[1][2], SensorAVG=t[1][3], Label=t[1][4])))\
-    #     .write.mode("overwrite")\
-    #     .option("header", True)\
-    #     .csv("matrix")
+    MLUtils.saveAsLibSVMFile(matrix, dir_path)

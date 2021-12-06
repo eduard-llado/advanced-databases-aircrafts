@@ -1,9 +1,10 @@
 import shutil
-from pyspark.sql import SparkSession
-from pyspark.ml.feature import StringIndexer, VectorIndexer
+
 from pyspark.ml import Pipeline
 from pyspark.ml.classification import DecisionTreeClassifier
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator
+from pyspark.ml.feature import StringIndexer, VectorIndexer
+from pyspark.sql import SparkSession
 
 
 def analysis(sc):
@@ -32,7 +33,8 @@ def analysis(sc):
         .fit(data)
 
     # Split the data into training and test sets (30% held out for testing)
-    (trainingData, testData) = data.randomSplit([0.7, 0.3])
+
+    (trainingData, testData) = data.randomSplit([0.7, 0.3], seed=1234)
 
     """Create and store the validated model. Included evaluation metrics: accuracy and recall."""
 
@@ -59,7 +61,7 @@ def analysis(sc):
     recall_evaluator = MulticlassClassificationEvaluator(labelCol="indexedLabel", predictionCol="prediction",
                                                          metricName="weightedRecall")
     recall = recall_evaluator.evaluate(predictions)
-    print("Recall = %g " % recall) # ??? dona el mateix :/
+    print("Recall (Weighted) = %g " % recall)
 
     # Model summary
     treeModel = model.stages[2]
@@ -71,4 +73,4 @@ def analysis(sc):
     except OSError as e:
         print("Error: %s : %s" % (dir_path, e.strerror))
 
-    treeModel.save("./model")
+    treeModel.save(dir_path)

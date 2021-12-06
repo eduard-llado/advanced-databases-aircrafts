@@ -1,10 +1,12 @@
 import os
 import sys
+
 import pyspark
 from pyspark import SparkConf
 from pyspark.sql import SparkSession
-import data_management
+
 import data_analysis
+import data_management
 import runtime_classifier
 
 HADOOP_HOME = "./resources/hadoop_home"
@@ -30,5 +32,14 @@ if __name__ == "__main__":
     sc = pyspark.SparkContext.getOrCreate()
 
     # Create and point to your pipelines here
-    data_management.management(sc)
-    data_analysis.analysis(sc)
+    if len(sys.argv) < 2:
+        print("Wrong number of parameters, usage: (management, analysis, <aircraft date>)")
+        exit()
+    if sys.argv[1] == "management":
+        data_management.management(sc)
+    elif sys.argv[1] == "analysis":
+        data_analysis.analysis(sc)
+    else:
+        aircraft = str(sys.argv[1])
+        date = str(sys.argv[2])
+        runtime_classifier.evaluation(sc, aircraft, date)
