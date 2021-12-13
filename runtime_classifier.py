@@ -1,9 +1,7 @@
 from pyspark.ml import PipelineModel
 from pyspark.sql import SparkSession
-import data_management
 
-username = "yinlena.xu"
-password = "DB040200"
+import data_management
 
 
 def evaluation(sc, aircraft, date):
@@ -11,6 +9,7 @@ def evaluation(sc, aircraft, date):
     This pipeline predicts if an aircraft is going to go for unscheduled maintenance in
     the next seven days, given a record (<aircraft, date, FH, FC, DM, AVG(sensor)>).
     """
+
     sess = SparkSession(sc)
 
     """Given an aircraft and a date, replicates the data management pipeline and prepares 

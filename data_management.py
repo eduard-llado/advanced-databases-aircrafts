@@ -90,9 +90,6 @@ def management(sc, aircraft, date):
 
     """Generate a matrix with the gathered data and store it."""
 
-    for x in labeledSensors.take(5):
-        print(x)
-
     matrix = (labeledSensors
               .map(lambda t: LabeledPoint(t[1][4], [t[1][3], t[1][0], t[1][1], t[1][2]])))
 
