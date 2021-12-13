@@ -33,7 +33,8 @@ if __name__ == "__main__":
 
     # Create and point to your pipelines here
     if len(sys.argv) < 2:
-        print("Wrong number of parameters, usage:  <aircraft date>")
+        print("Wrong number of parameters, usage:  <aircraft date> "
+              "Date format (ddmmyy)")
         exit()
 
     try:
@@ -44,4 +45,5 @@ if __name__ == "__main__":
         runtime_classifier.evaluation(sc, aircraft, date)
     except Exception as e:
         print(e)
-        print("Error: Pipeline failed.")
+        print("Error: Something failed during the pipeline execution. "
+              "Make sure aircraft registration and data format (ddmmyy) are correct.")

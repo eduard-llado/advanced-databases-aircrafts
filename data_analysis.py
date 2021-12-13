@@ -69,6 +69,6 @@ def analysis(sc):
 
     dir_path = "./model"
 
-    shutil.rmtree(dir_path, ignore_errors=False)
+    shutil.rmtree(dir_path, ignore_errors=True)
 
     model.save(dir_path)

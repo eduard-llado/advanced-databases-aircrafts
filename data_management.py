@@ -97,6 +97,6 @@ def management(sc, aircraft, date):
 
     dir_path = "./matrix"
 
-    shutil.rmtree(dir_path, ignore_errors=False)
+    shutil.rmtree(dir_path, ignore_errors=True)
 
     MLUtils.saveAsLibSVMFile(matrix, dir_path)
