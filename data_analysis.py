@@ -68,9 +68,7 @@ def analysis(sc):
     print(treeModel)
 
     dir_path = "./model"
-    try:
-        shutil.rmtree(dir_path)
-    except OSError as e:
-        print("Error: %s : %s" % (dir_path, e.strerror))
 
-    treeModel.save(dir_path)
+    shutil.rmtree(dir_path, ignore_errors=False)
+
+    model.save(dir_path)

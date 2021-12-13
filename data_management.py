@@ -9,7 +9,7 @@ username = "eduard.llado"
 password = "DB100200"
 
 
-def management(sc):
+def management(sc, aircraft, date):
     """
     This pipeline generates a matrix where the rows denote the information of an aircraft per day,
     and the columns refer to the FH, FC and DM KPIs, and the average measurement of the 3453 sensor.
@@ -19,7 +19,7 @@ def management(sc):
 
     """Read the sensor measurements (extracted from the CSV files) for each aircraft and average it per day."""
 
-    sensors = (sc.wholeTextFiles("./resources/trainingData/*.csv")
+    sensors = (sc.wholeTextFiles("./resources/trainingData/" + date + "*" + aircraft + ".csv")
                .map(lambda t: (t[0].split("/")[-1][-10:-4], t[1]))          # (1)
                .flatMapValues(lambda t: t.split("\n")[1:-1])                # (2)
                .mapValues(lambda t: (t.split(" ")[0], t.split(";")[2]))     # (3)
@@ -90,15 +90,16 @@ def management(sc):
 
     """Generate a matrix with the gathered data and store it."""
 
+    for x in labeledSensors.take(5):
+        print(x)
+
     matrix = (labeledSensors
               .map(lambda t: LabeledPoint(t[1][4], [t[1][3], t[1][0], t[1][1], t[1][2]])))
 
     # matrix row: (label, [AVG(sensor), FH, FC, DM])
 
     dir_path = "./matrix"
-    try:
-        shutil.rmtree(dir_path)
-    except OSError as e:
-        print("Error: %s : %s" % (dir_path, e.strerror))
+
+    shutil.rmtree(dir_path, ignore_errors=False)
 
     MLUtils.saveAsLibSVMFile(matrix, dir_path)

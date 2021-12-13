@@ -33,13 +33,15 @@ if __name__ == "__main__":
 
     # Create and point to your pipelines here
     if len(sys.argv) < 2:
-        print("Wrong number of parameters, usage: (management, analysis, <aircraft date>)")
+        print("Wrong number of parameters, usage:  <aircraft date>")
         exit()
-    if sys.argv[1] == "management":
-        data_management.management(sc)
-    elif sys.argv[1] == "analysis":
+
+    try:
+        data_management.management(sc, "*", "*")
         data_analysis.analysis(sc)
-    else:
         aircraft = str(sys.argv[1])
         date = str(sys.argv[2])
         runtime_classifier.evaluation(sc, aircraft, date)
+    except Exception as e:
+        print(e)
+        print("Error: Pipeline failed.")
