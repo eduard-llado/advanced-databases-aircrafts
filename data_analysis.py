@@ -44,7 +44,7 @@ def analysis(sc):
     # Chain indexers and tree in a Pipeline
     pipeline = Pipeline(stages=[labelIndexer, featureIndexer, dt])
 
-    # Train model.  This also runs the indexers.
+    # Train model. This also runs the indexers.
     model = pipeline.fit(trainingData)
 
     # Make predictions.

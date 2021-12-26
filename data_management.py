@@ -33,7 +33,7 @@ def management(sc, aircraft, date):
     # (4) Move day to key and prepare to get average
     # (5) Compute sensor sum and count
     # (6) Compute sensor average
-    # sensors output: ((aircraft, date), AVG(sensor)
+    # sensors output: ((aircraft, date), AVG(sensor))
 
     """Enrich the sensor average with the KPIs from the Data Warehouse at the same granularity level."""
 
@@ -77,7 +77,7 @@ def management(sc, aircraft, date):
 
     # (1) Filter aircraft navigation subsystem (ATA code: 3453)
     # (2) Get unscheduled events
-    # (3) Reformat date
+    # (3) Reformat date and make copies over the previous week
     # (4) Set aircraft and date as key
     # labels output: ((aircraft, date), 1) for all unscheduled events
 
