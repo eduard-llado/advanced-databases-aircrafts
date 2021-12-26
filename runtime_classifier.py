@@ -1,4 +1,4 @@
-from pyspark.ml import PipelineModel
+from pyspark.ml.classification import DecisionTreeClassificationModel
 from pyspark.sql import SparkSession
 
 import data_management
@@ -22,6 +22,6 @@ def evaluation(sc, aircraft, date):
 
     """Classifies the record and outputs maintenance / no maintenance."""
 
-    model = PipelineModel.load("./model")
+    model = DecisionTreeClassificationModel.load("./model")
     predictions = model.transform(data)
-    predictions.select("prediction", "indexedFeatures").show()
+    predictions.select("prediction", "features").show()
