@@ -31,7 +31,6 @@ if __name__ == "__main__":
 
     sc = pyspark.SparkContext.getOrCreate()
 
-    # Create and point to your pipelines here
     if len(sys.argv) < 2:
         print("Wrong number of parameters, usage:  <aircraft date> "
               "Date format (ddmmyy)")

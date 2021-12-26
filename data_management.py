@@ -52,9 +52,9 @@ def management(sc, aircraft, date):
 
     # kpis output: ((aircraft, date), (FH, FC, DM))
 
-    enrichedSensors = sensors.join(kpis).mapValues(lambda t: (t[1][0], t[1][1], t[1][2], t[0]))
+    enrichedSensors = sensors.join(kpis).mapValues(lambda t: (t[0], t[1][0], t[1][1], t[1][2]))
 
-    # enrichedSensors output: ((aircraft, date), (FH, FC, DM, AVG(sensor)))
+    # enrichedSensors output: ((aircraft, date), (AVG(sensor), FH, FC, DM))
 
     """Add maintenance label for supervised algorithm."""
 
@@ -83,15 +83,15 @@ def management(sc, aircraft, date):
 
     labeledSensors = enrichedSensors \
         .leftOuterJoin(labels) \
-        .mapValues(lambda t: t[0] + ({1: 1, None: 0}[t[1]],))
+        .mapValues(lambda t: ({1: 1, None: 0}[t[1]],) + t[0])
 
-    # labeledSensors output: ((aircraft, date), (FH, FC, DM, AVG(sensor), label))
+    # labeledSensors output: ((aircraft, date), (label, AVG(sensor), FH, FC, DM))
     # label 1: maintenance, 0: no maintenance
 
     """Generate a matrix with the gathered data and store it."""
 
     matrix = (labeledSensors
-              .map(lambda t: LabeledPoint(t[1][4], [t[1][3], t[1][0], t[1][1], t[1][2]])))
+              .map(lambda t: LabeledPoint(t[1][0], [t[1][1], t[1][2], t[1][3], t[1][4]])))
 
     # matrix row: (label, [AVG(sensor), FH, FC, DM])
 

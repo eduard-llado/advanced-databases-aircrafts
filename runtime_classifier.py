@@ -6,8 +6,8 @@ import data_management
 
 def evaluation(sc, aircraft, date):
     """
-    This pipeline predicts if an aircraft is going to go for unscheduled maintenance in
-    the next seven days, given a record (<aircraft, date, FH, FC, DM, AVG(sensor)>).
+    This pipeline predicts if an aircraft is going to go for unscheduled maintenance in the
+    next seven days given <aircraft, date>, which corresponds to a record <AVG(sensor), FH, FC, DM>.
     """
 
     sess = SparkSession(sc)
