@@ -32,8 +32,9 @@ if __name__ == "__main__":
     sc = pyspark.SparkContext.getOrCreate()
 
     if len(sys.argv) < 2:
-        print("Wrong number of parameters, usage:  <aircraft date> "
-              "Date format (ddmmyy)")
+        print("Wrong parameters, usage:  <aircraft date> "
+              "Aircraft Registration format: XX-XXX "
+              "Date format: DDMMYY")
         exit()
 
     try:
@@ -45,4 +46,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(e)
         print("Error: Something failed during the pipeline execution. "
-              "Make sure aircraft registration and data format (ddmmyy) are correct.")
+              "Make sure aircraft registration and date are correct.")
